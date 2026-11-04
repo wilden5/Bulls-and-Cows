@@ -16,6 +16,15 @@ describe('createDigitValidator', () => {
       expect(isDecimal('F')).toBe(false);
       expect(isDecimal('/')).toBe(false);
     });
+
+    it('should return false for empty string', () => {
+      expect(isDecimal('')).toBe(false);
+    });
+
+    it('should return false for multi-character strings', () => {
+      expect(isDecimal('12')).toBe(false);
+      expect(isDecimal('abc')).toBe(false);
+    });
   });
 
   describe('Hexadecimal (base 16)', () => {
