@@ -1,9 +1,13 @@
-import type { Base } from './digit-validator.js';
+import { type Base, createDigitValidator } from './digit-validator.js';
 
 export const isValidGuess = (
-  _guess: string,
-  _length: number,
-  _base: Base,
+  guess: string,
+  length: number,
+  base: Base,
 ): boolean => {
-  throw new Error('not implemented');
+  return (
+    guess.length === length &&
+    [...guess].every(createDigitValidator(base)) &&
+    new Set(guess.toLowerCase()).size === length
+  );
 };
