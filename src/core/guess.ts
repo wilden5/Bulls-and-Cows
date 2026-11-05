@@ -14,6 +14,20 @@ export const isValidGuess = (
   );
 };
 
-export const evaluateGuess = (_secret: string, _guess: string): GuessResult => {
-  throw new Error('not implemented');
+export const evaluateGuess = (secret: string, guess: string): GuessResult => {
+  const secretChars = [...secret.toLowerCase()];
+  const guessChars = [...guess.toLowerCase()];
+
+  const bulls = secretChars.reduce(
+    (count, char, index) => count + (char === guessChars[index] ? 1 : 0),
+    0,
+  );
+
+  const matchedCount = guessChars.filter((char) =>
+    secretChars.includes(char),
+  ).length;
+
+  const cows = matchedCount - bulls;
+
+  return { bulls, cows };
 };
