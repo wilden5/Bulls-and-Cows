@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { generateSecret } from './generate-secret.js';
 import { createDigitValidator } from './digit-validator.js';
 
-describe('createDigitValidator', () => {
+describe('generateSecret', () => {
   const alwaysZero = () => 0;
 
   it('picks pool digits in order when random always returns 0', () => {
