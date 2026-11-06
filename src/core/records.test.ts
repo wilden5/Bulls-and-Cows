@@ -1,4 +1,11 @@
-import { addRecord, type RecordEntry } from './records.js';
+import {
+  addRecord,
+  loadRecords,
+  type RecordEntry,
+  type RecordStorage,
+  recordsKey,
+  saveRecords,
+} from './records.js';
 import { describe, it, expect } from 'vitest';
 
 const entry = (attempts: number, timeMs: number): RecordEntry => ({
@@ -6,6 +13,17 @@ const entry = (attempts: number, timeMs: number): RecordEntry => ({
   attempts,
   timeMs,
 });
+
+const createFakeStorage = (): RecordStorage => {
+  const data = new Map<string, string>();
+
+  return {
+    getItem: (key) => data.get(key) ?? null,
+    setItem: (key, value) => {
+      data.set(key, value);
+    },
+  };
+};
 
 describe('addRecord', () => {
   it('adds the first record to an empty list', () => {
@@ -38,5 +56,48 @@ describe('addRecord', () => {
     addRecord(original, entry(3, 60_000));
 
     expect(original).toEqual([entry(5, 60_000)]);
+  });
+});
+
+describe('record storage', () => {
+  it('saves and loads records back', () => {
+    const storage = createFakeStorage();
+    const records = [entry(4, 60_000)];
+
+    saveRecords(storage, 4, 10, records);
+
+    expect(loadRecords(storage, 4, 10)).toEqual(records);
+  });
+
+  it('returns an empty list when nothing is stored', () => {
+    const storage = createFakeStorage();
+
+    expect(loadRecords(storage, 4, 10)).toEqual([]);
+  });
+
+  it('keeps different lengths and bases apart', () => {
+    const storage = createFakeStorage();
+
+    saveRecords(storage, 4, 10, [entry(4, 60_000)]);
+    saveRecords(storage, 2, 16, [entry(2, 10_000)]);
+
+    expect(loadRecords(storage, 4, 10)).toEqual([entry(4, 60_000)]);
+    expect(loadRecords(storage, 2, 16)).toEqual([entry(2, 10_000)]);
+  });
+
+  it('returns an empty list when stored data is corrupted', () => {
+    const storage = createFakeStorage();
+
+    storage.setItem(recordsKey(4, 10), '{oops');
+
+    expect(loadRecords(storage, 4, 10)).toEqual([]);
+  });
+
+  it('ignores entries with a wrong shape', () => {
+    const storage = createFakeStorage();
+
+    storage.setItem(recordsKey(4, 10), JSON.stringify([{ attempts: 'many' }]));
+
+    expect(loadRecords(storage, 4, 10)).toEqual([]);
   });
 });
