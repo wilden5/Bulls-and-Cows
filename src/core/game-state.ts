@@ -1,6 +1,6 @@
 import type { Base } from './digit-validator.js';
-import type { Random } from './generate-secret.js';
-import type { GuessResult } from './guess.js';
+import { generateSecret, type Random } from './generate-secret.js';
+import { evaluateGuess, type GuessResult } from './guess.js';
 
 export type GuessEntry = {
   guess: string;
@@ -18,17 +18,39 @@ export type GameState = {
 };
 
 export const startGame = (
-  _length: number,
-  _base: Base,
-  _random: Random = Math.random,
-): GameState => {
-  throw new Error('not implemented');
+  length: number,
+  base: Base,
+  random: Random = Math.random,
+): GameState => ({
+  secret: generateSecret(length, base, random),
+  base,
+  status: 'playing',
+  history: [],
+});
+
+export const isWin = (result: GuessResult, length: number): boolean => {
+  return result.bulls === length;
 };
 
-export const isWin = (_result: GuessResult, _length: number): boolean => {
-  throw new Error('not implemented');
-};
+export const submitGuess = (state: GameState, guess: string): GameState => {
+  if (state.status === 'won') return state;
 
-export const submitGuess = (_state: GameState, _guess: string): GameState => {
-  throw new Error('not implemented');
+  const normalizedGuess = guess.toLowerCase();
+
+  const isRepeat = state.history.some(
+    (entry) => entry.guess === normalizedGuess,
+  );
+
+  if (isRepeat) return state;
+
+  const result = evaluateGuess(state.secret, normalizedGuess);
+  const entry: GuessEntry = { guess: normalizedGuess, ...result };
+
+  const won = isWin(result, state.secret.length);
+
+  return {
+    ...state,
+    history: [...state.history, entry],
+    status: won ? 'won' : 'playing',
+  };
 };
