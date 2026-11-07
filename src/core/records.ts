@@ -29,22 +29,46 @@ export const addRecord = (
   return sorted.slice(0, TOP_N);
 };
 
+const isRecordEntry = (value: unknown): value is RecordEntry => {
+  if (typeof value !== 'object' || value === null) return false;
+
+  const candidate = value as RecordEntry;
+
+  return (
+    typeof candidate.date === 'string' &&
+    typeof candidate.attempts === 'number' &&
+    typeof candidate.timeMs === 'number'
+  );
+};
+
 export const recordsKey = (length: number, base: Base): string =>
   `records-${length}-${base}`;
 
 export const loadRecords = (
-  _storage: RecordStorage,
-  _length: number,
-  _base: Base,
+  storage: RecordStorage,
+  length: number,
+  base: Base,
 ): RecordEntry[] => {
-  throw new Error('not implemented');
+  const raw = storage.getItem(recordsKey(length, base));
+
+  if (raw === null) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(isRecordEntry);
+  } catch {
+    return [];
+  }
 };
 
 export const saveRecords = (
-  _storage: RecordStorage,
-  _length: number,
-  _base: Base,
-  _records: RecordEntry[],
+  storage: RecordStorage,
+  length: number,
+  base: Base,
+  records: RecordEntry[],
 ): void => {
-  throw new Error('not implemented');
+  storage.setItem(recordsKey(length, base), JSON.stringify(records));
 };
