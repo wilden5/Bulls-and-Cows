@@ -1,9 +1,13 @@
-import type { Base } from '../core/digit-validator.js';
+import { type Base, createDigitValidator } from '../core/digit-validator.js';
 
 export const filterInput = (
-  _value: string,
-  _base: Base,
-  _length: number,
+  value: string,
+  base: Base,
+  length: number,
 ): string => {
-  throw new Error('not implemented');
+  const isValidDigit = createDigitValidator(base);
+
+  const validChars = [...value].filter(isValidDigit);
+
+  return validChars.slice(0, length).join('');
 };
