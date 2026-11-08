@@ -20,6 +20,7 @@ export const renderSettings = (
   root: HTMLElement,
   current: Settings,
   onStart: (settings: Settings) => void,
+  onRecords: (settings: Settings) => void,
 ): void => {
   root.replaceChildren();
 
@@ -68,6 +69,17 @@ export const renderSettings = (
     });
   });
 
+  const collectSettings = (): Settings => ({
+    length: Number(lengthSelect.value),
+    base: Number(baseSelect.value) as Base,
+  });
+
+  const recordsButton = document.createElement('button');
+  recordsButton.textContent = 'Records';
+  recordsButton.addEventListener('click', () => {
+    onRecords(collectSettings());
+  });
+
   applyBinaryLimit();
 
   root.append(
@@ -77,5 +89,6 @@ export const renderSettings = (
     baseHeading,
     baseSelect,
     startButton,
+    recordsButton,
   );
 };
