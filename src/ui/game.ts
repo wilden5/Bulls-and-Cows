@@ -51,6 +51,7 @@ export const renderGame = (
       });
 
       const message = createText('p', '');
+      message.className = 'error';
 
       const handleSubmit = (): void => {
         const guess = input.value;
