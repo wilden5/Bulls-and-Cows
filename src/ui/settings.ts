@@ -63,10 +63,7 @@ export const renderSettings = (
   const startButton = document.createElement('button');
   startButton.textContent = 'Start game';
   startButton.addEventListener('click', () => {
-    onStart({
-      length: Number(lengthSelect.value),
-      base: Number(baseSelect.value) as Base,
-    });
+    onStart(collectSettings());
   });
 
   const collectSettings = (): Settings => ({
